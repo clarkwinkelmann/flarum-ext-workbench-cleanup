@@ -30,8 +30,10 @@ class CleanController extends AbstractController
             ], 400);
         }
 
+        $pathType = $type;
+
         if ($type === 'node_modules') {
-            $type = 'js/node_modules';
+            $pathType = 'js/node_modules';
         }
 
         $extensionFolders = $this->filesystem->directories($folder);
@@ -47,10 +49,14 @@ class CleanController extends AbstractController
         $deleted = [];
 
         foreach (($extension === '*' ? $extensionFolders : ["$folder/$extension"]) as $extensionFolder) {
-            $path = "$extensionFolder/$type";
+            $path = "$extensionFolder/$pathType";
 
             if ($this->filesystem->deleteDirectory($path)) {
-                $deleted[] = $path;
+                $deleted[] = [
+                    'folder' => $folder,
+                    'extension' => $extension === '*' ? Arr::last(explode('/', $extensionFolder)) : $extension,
+                    'type' => $type,
+                ];
             }
         }
 
